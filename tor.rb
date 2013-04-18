@@ -49,8 +49,8 @@ class Tor
   end
 
   #block to be executed though the proxy
-  def proxy_mecahnize(&block)
-    block.call
+  def proxy_mecahnize
+    yield
   end
 end
 
