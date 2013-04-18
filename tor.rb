@@ -10,11 +10,11 @@ class Tor
   def initialize(control_port='9051',socks_port='9050')
     @tor_control_port = control_port
     @tor_socks_port   = socks_port
+    TCPSocket::socks_server = "127.0.0.1"
+    TCPSocket::socks_port = @tor_socks_port
   end
 
   def get_current_ip_address
-    TCPSocket::socks_server = "127.0.0.1"
-    TCPSocket::socks_port = @tor_socks_port
     # rubyforge_www = TCPSocket.new("rubyforge.org", 80)
     a = Mechanize.new do |agent|
       agent.user_agent_alias = 'Mac FireFox'
@@ -48,11 +48,16 @@ class Tor
     localhost.close
   end
 
+  #block to be executed though the proxy
+  def proxy_mecahnize(&block)
+    block.call
+  end
 end
 
 #start tor first 
 #tor --controlport 9051
 t=Tor.new
-5.times do
-  t.get_new_ip
-end
+t.proxy_mecahnize { 
+  a = Mechanize.new
+  puts a.get('http://ifconfig.me/ip').body.chomp
+}
